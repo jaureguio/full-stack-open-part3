@@ -1,0 +1,28 @@
+{
+  "name": "phonebook-app",
+  "version": "0.0.1",
+  "description": "Backend for Full Stack Open 2020 phonebook app",
+  "main": "index.js",
+  "scripts": {
+    "start": "index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaureguio/full-stack-open-part3.git"
+  },
+  "author": "Oscar Jauregui",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jaureguio/full-stack-open-part3/issues"
+  },
+  "homepage": "https://github.com/jaureguio/full-stack-open-part3#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.4"
+  }
+}
