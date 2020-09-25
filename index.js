@@ -1,4 +1,5 @@
 require('dotenv').config()
+const { response } = require('express')
 const express = require('express')
 
 const PORT = process.env.PORT
@@ -34,6 +35,16 @@ const persons = [
 const app = express()
 
 app
+  .get('/info', (req, res) => {
+    const phonebookSize = persons.length
+    const time = new Date()
+    
+    const template = `
+    <p>Phonebook has info for ${phonebookSize} people</p>
+    <p>${time}</p>
+    `
+    res.send(template)
+  })
   .get('/api/persons', (req, res) => {
     res.json(persons)
   })
