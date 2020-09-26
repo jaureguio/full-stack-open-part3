@@ -4,9 +4,13 @@
   "description": "Backend for Full Stack Open 2020 phonebook app",
   "main": "index.js",
   "scripts": {
-    "start": "index.js",
-    "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "build:ui": "Remove-Item -force -recurse build; cd ../full-stack-open-2020/part2/phonebook; npm run build; Copy-Item -recurse build ../../../full-stack-open-2020-part3/",
+    "deploy:full": "npm run build:ui; git add .; git commit -m 'uibuild'; npm run deploy",
+    "deploy": "git push heroku main -f",
+    "dev": "nodemon -r dotenv/config index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "log:prod": "heroku logs --tail"
   },
   "repository": {
     "type": "git",
@@ -19,6 +23,7 @@
   },
   "homepage": "https://github.com/jaureguio/full-stack-open-part3#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1"
   },
   "devDependencies": {

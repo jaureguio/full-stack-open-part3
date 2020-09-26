@@ -1,8 +1,11 @@
-require('dotenv').config()
-const express = require('express')
-const morgan = require('morgan')
+// dotenv package is required through dev script before running this file in development
+// require('dotenv').config()
 
-const PORT = process.env.PORT
+const express = require('express')
+const cors = require('cors')
+
+console.log(process.env.NODE_ENV);
+const PORT = process.env.PORT || 3001
 
 let persons = [
   {
@@ -32,31 +35,38 @@ let persons = [
   },
 ]
 
-morgan.token('body', (req, res) => {
-  if(req.method !== 'POST') return null
-  return `${JSON.stringify(req.body)}`
-})
-
-const loggerFormat = (tokens, req, res) => {
-  return [
-    tokens.method(req, res),
-    tokens.url(req, res),
-    tokens.status(req, res),
-    tokens.res(req, res, "content-length"),
-    "-",
-    tokens["response-time"](req, res),
-    "ms",
-    tokens.body(req, res),
-  ].join(" ");
-};
-
-const app = express()
+const app = express();
 
 app
+  .use(express.static("build"))
+  .use(cors())
   .use(express.json())
-  .use(morgan(loggerFormat));
 
-app.get('/info', (req, res) => {
+if(process.env.NODE_ENV === "development") {
+  const morgan = require("morgan");
+  
+  morgan.token('body', (req) => {
+    if(req.method !== 'POST') return null
+    return `${JSON.stringify(req.body)}`
+  })
+
+  const loggerFormat = (tokens, req, res) => {
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, "content-length"),
+      "-",
+      tokens["response-time"](req, res),
+      "ms",
+      tokens.body(req, res),
+    ].join(" ");
+  }
+
+  app.use(morgan(loggerFormat));
+}
+
+app.get('/info', (_, res) => {
   const phonebookSize = persons.length
   const time = new Date()
   
@@ -83,14 +93,23 @@ app
   .delete((req, res) => {
     const reqId = Number(req.params.id)
 
-    persons = persons.filter(({ id }) => id !== reqId)
+    let deletedIdx;
+    persons = persons.filter(({ id }, idx) => {
+      if(id !== reqId) {
+        return true
+      } else {
+        deletedIdx = idx
+        return false
+      }
+    })
+    if(deletedIdx === undefined) return res.status(404).end()
 
-    return res.json({ message: 'Person deleted!' })
+    return res.json({ data: 'Person deleted!' })
   })
 
 app
   .route("/api/persons")
-  .get((req, res) => {
+  .get((_, res) => {
     return res.json(persons)
   })
   .post((req, res) => {
@@ -113,7 +132,7 @@ app
     newEntry.id = generateId()
     persons.push(newEntry)
     
-    return res.status(201).json({ message: `${newEntry.name} was added!`})
+    return res.status(201).json(newEntry)
   })
 
 app.listen(PORT, () => {
