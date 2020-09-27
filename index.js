@@ -1,4 +1,4 @@
-// dotenv package is required through dev script before running this file in development
+// dotenv package is required through npm's "dev" script before running this file in development
 // require('dotenv').config()
 
 const express = require('express')
@@ -12,45 +12,35 @@ const app = express()
 
 app
   .use(cors())
-  .use(express.static("build"))
+  .use(express.static('build'))
   .use(express.json())
 
-if(process.env.NODE_ENV === "development") {
-  const morgan = require("morgan");
-  
+if(process.env.NODE_ENV === 'development') {
+  const morgan = require('morgan')
   morgan.token('body', (req) => {
     if(req.method !== 'POST') return null
     return `${JSON.stringify(req.body)}`
   })
 
-  const loggerFormat = (tokens, req, res) => {
-    return [
-      tokens.method(req, res),
-      tokens.url(req, res),
-      tokens.status(req, res),
-      tokens.res(req, res, "content-length"),
-      "-",
-      tokens["response-time"](req, res),
-      "ms",
-      tokens.body(req, res),
-    ].join(" ")
-  }
-
-  app.use(morgan(loggerFormat))
+  app.use(
+    morgan(
+      ':method :url :status :res[content-length] - :response-time ms :body'
+    )
+  )
 }
 
-app.get('/info', (_, res) => {
+app.get('/info', (_, res, next) => {
   Person.find({})
     .then(people => {
       const time = new Date()
       const template = `<p>Phonebook has info for ${people.length} people</p>\n<p>${time}</p>`
       res.send(template)
     })
-    .catch((error) => next(error));
+    .catch((error) => next(error))
 })
 
 app
-  .route("/api/persons/:id")
+  .route('/api/persons/:id')
   .get((req, res, next) => {
     Person.findById(req.params.id)
       .then(person => res.json(person))
@@ -66,14 +56,14 @@ app
   .delete((req, res, next) => {
     Person
       .findByIdAndRemove(req.params.id)
-      .then(result => {
+      .then(() => {
         res.status(204).end()
       })
       .catch(error => next(error))
   })
 
 app
-  .route("/api/persons")
+  .route('/api/persons')
   .get((_, res, next) => {
     Person
       .find({})
@@ -82,22 +72,21 @@ app
   })
   .post((req, res, next) => {
     const newEntry = new Person(req.body)
-    
     newEntry
       .save()
       .then(addedPerson => res.status(201).json(addedPerson))
       .catch(error => next(error))
   })
 
-const unknownEndpoint = (_, res) => {res.status(404).send({ error: "unknown endpoint" })}
+const unknownEndpoint = (_, res) => {res.status(404).send({ error: 'unknown endpoint' })}
 
 const errorHandler = (error, _, res, next) => {
   console.log(error.message)
 
-  if(error.name === "CastError") {
-    return res.status(400).send({ error: "malformatted id" })
+  if(error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
   }
-  if(error.name === "ValidationError") {
+  if(error.name === 'ValidationError') {
     return res.status(400).send({ error: error.message })
   }
 

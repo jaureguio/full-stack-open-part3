@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 if(process.argv.length < 3) {
   console.error('Please provide a password')
@@ -8,9 +8,9 @@ if(process.argv.length < 3) {
 const password = process.argv[2]
 
 const URI =
-  `mongodb+srv://phonebook-dba:${password}@phonebook-cluster.joiwh.mongodb.net/phonebook?retryWrites=true&w=majority`;
+  `mongodb+srv://phonebook-dba:${password}@phonebook-cluster.joiwh.mongodb.net/phonebook?retryWrites=true&w=majority`
 
-mongoose.connect(URI, { 
+mongoose.connect(URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
@@ -37,7 +37,6 @@ if(process.argv.length === 3) {
     const peopleList = people.map(({ name, number }) => `${name} ${number}`).join('\n')
 
     console.log(`phonebook:\n${peopleList}`)
-    
     mongoose.connection.close()
   })
 } else {
@@ -50,8 +49,8 @@ if(process.argv.length === 3) {
   person
     .save()
     .then(({ name, number }) => {
-      console.log(`added ${name} number ${number} to phonebook`);
+      console.log(`added ${name} number ${number} to phonebook`)
 
-      mongoose.connection.close();
-    });
+      mongoose.connection.close()
+    })
 }
