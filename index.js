@@ -15,7 +15,7 @@ app
   .use(express.static("build"))
   .use(express.json())
 
-// if(process.env.NODE_ENV === "development") {
+if(process.env.NODE_ENV === "development") {
   const morgan = require("morgan");
   
   morgan.token('body', (req) => {
@@ -37,7 +37,7 @@ app
   }
 
   app.use(morgan(loggerFormat))
-// }
+}
 
 app.get('/info', (_, res) => {
   Person.find({})
@@ -59,7 +59,7 @@ app
   .put((req, res, next) => {
     const { number } = req.body
     Person
-      .findByIdAndUpdate(req.params.id, { number }, { new: true })
+      .findByIdAndUpdate(req.params.id, { number }, { new: true, runValidators: true, context: 'query' })
       .then(updatedPerson => res.json(updatedPerson))
       .catch(error => next(error))
   })
@@ -96,7 +96,10 @@ const errorHandler = (error, _, res, next) => {
 
   if(error.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" })
-  } 
+  }
+  if(error.name === "ValidationError") {
+    return res.status(400).send({ error: error.message })
+  }
 
   next(error)
 }
